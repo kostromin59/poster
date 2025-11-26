@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS media (
   post_id UUID,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-  FOREIGN KEY(post_id) REFERENCES posts(id)
+  FOREIGN KEY(post_id) REFERENCES posts(id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 -- +goose StatementEnd
 
