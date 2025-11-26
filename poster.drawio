@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.0.3 Chrome/140.0.7339.249 Electron/38.7.0 Safari/537.36" version="29.0.3">
   <diagram name="Страница-1" id="beEgosw6aVVJjS3AL4Mr">
-    <mxGraphModel dx="2175" dy="1273" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1653" dy="967" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -71,24 +71,19 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="vzJ1bzq0BXNTi24XqwbR-37" value="Posts Repository" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="514" y="770" width="140" height="50" as="geometry" />
+          <mxGeometry x="364" y="720" width="140" height="50" as="geometry" />
         </mxCell>
         <mxCell id="vzJ1bzq0BXNTi24XqwbR-43" value="Telegram Poster" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="514" y="460" width="140" height="50" as="geometry" />
-        </mxCell>
-        <mxCell id="vzJ1bzq0BXNTi24XqwbR-44" value="Media&lt;br&gt;Storage (S3)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" parent="1" vertex="1">
-          <mxGeometry x="360" y="980" width="60" height="80" as="geometry" />
+          <mxGeometry x="364" y="430" width="140" height="50" as="geometry" />
         </mxCell>
         <mxCell id="vzJ1bzq0BXNTi24XqwbR-45" value="Storage&lt;br&gt;(Postgres)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" parent="1" vertex="1">
-          <mxGeometry x="700" y="755" width="60" height="80" as="geometry" />
+          <mxGeometry x="560" y="705" width="60" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="vzJ1bzq0BXNTi24XqwbR-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="vzJ1bzq0BXNTi24XqwbR-47" target="vzJ1bzq0BXNTi24XqwbR-62" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="309.9999999999998" y="795.0000000000002" as="targetPoint" />
-          </mxGeometry>
+        <mxCell id="aOHTguttKLrfWZ4VfgR2-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="vzJ1bzq0BXNTi24XqwbR-47" target="vzJ1bzq0BXNTi24XqwbR-37">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="vzJ1bzq0BXNTi24XqwbR-47" value="REST API" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="130" y="730" width="140" height="50" as="geometry" />
+          <mxGeometry x="170" y="720" width="140" height="50" as="geometry" />
         </mxCell>
         <mxCell id="vzJ1bzq0BXNTi24XqwbR-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="vzJ1bzq0BXNTi24XqwbR-50" target="vzJ1bzq0BXNTi24XqwbR-37" edge="1">
           <mxGeometry relative="1" as="geometry" />
@@ -97,51 +92,45 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="vzJ1bzq0BXNTi24XqwbR-50" value="Cron (every 30 minutes)&lt;br&gt;New post event" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="501" y="680" width="166" height="50" as="geometry" />
+          <mxGeometry x="351" y="630" width="166" height="50" as="geometry" />
         </mxCell>
         <mxCell id="vzJ1bzq0BXNTi24XqwbR-60" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="vzJ1bzq0BXNTi24XqwbR-55" target="vzJ1bzq0BXNTi24XqwbR-43" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="vzJ1bzq0BXNTi24XqwbR-55" value="Events Dispatcher" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="514" y="570" width="140" height="50" as="geometry" />
-        </mxCell>
-        <mxCell id="vzJ1bzq0BXNTi24XqwbR-65" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="vzJ1bzq0BXNTi24XqwbR-62" target="vzJ1bzq0BXNTi24XqwbR-37" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="vzJ1bzq0BXNTi24XqwbR-68" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="vzJ1bzq0BXNTi24XqwbR-62" target="vzJ1bzq0BXNTi24XqwbR-66" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="vzJ1bzq0BXNTi24XqwbR-62" value="Posts Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="320" y="770" width="140" height="50" as="geometry" />
-        </mxCell>
-        <mxCell id="aOHTguttKLrfWZ4VfgR2-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="vzJ1bzq0BXNTi24XqwbR-66" target="vzJ1bzq0BXNTi24XqwbR-44">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="aOHTguttKLrfWZ4VfgR2-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="vzJ1bzq0BXNTi24XqwbR-66" target="aOHTguttKLrfWZ4VfgR2-10">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="vzJ1bzq0BXNTi24XqwbR-55" value="Events Dispatcher&lt;br&gt;(Apache Kafka)" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="364" y="525" width="140" height="50" as="geometry" />
         </mxCell>
         <mxCell id="vzJ1bzq0BXNTi24XqwbR-66" value="Media Repository" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="320" y="875" width="140" height="50" as="geometry" />
+          <mxGeometry x="520" y="830" width="140" height="50" as="geometry" />
         </mxCell>
         <mxCell id="aOHTguttKLrfWZ4VfgR2-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aOHTguttKLrfWZ4VfgR2-7" target="vzJ1bzq0BXNTi24XqwbR-66">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="aOHTguttKLrfWZ4VfgR2-7" value="Cron (every day)&lt;br&gt;Clean unused media" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="130" y="875" width="140" height="50" as="geometry" />
-        </mxCell>
-        <mxCell id="aOHTguttKLrfWZ4VfgR2-10" value="Storage&lt;br&gt;(Postgres)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
-          <mxGeometry x="520" y="860" width="60" height="80" as="geometry" />
+          <mxGeometry x="520" y="920" width="140" height="50" as="geometry" />
         </mxCell>
         <mxCell id="aOHTguttKLrfWZ4VfgR2-15" value="Tags Repository" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="320" y="680" width="140" height="50" as="geometry" />
+          <mxGeometry x="170" y="630" width="140" height="50" as="geometry" />
         </mxCell>
         <mxCell id="aOHTguttKLrfWZ4VfgR2-16" value="Storage&lt;br&gt;(Postgres)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
-          <mxGeometry x="360" y="560" width="60" height="80" as="geometry" />
+          <mxGeometry x="210" y="510" width="60" height="80" as="geometry" />
         </mxCell>
         <mxCell id="aOHTguttKLrfWZ4VfgR2-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="aOHTguttKLrfWZ4VfgR2-15" target="aOHTguttKLrfWZ4VfgR2-16">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="aOHTguttKLrfWZ4VfgR2-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="vzJ1bzq0BXNTi24XqwbR-47" target="aOHTguttKLrfWZ4VfgR2-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aOHTguttKLrfWZ4VfgR2-27" value="Media&lt;br&gt;Storage (S3)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="404" y="810" width="60" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="aOHTguttKLrfWZ4VfgR2-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="vzJ1bzq0BXNTi24XqwbR-37" target="aOHTguttKLrfWZ4VfgR2-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aOHTguttKLrfWZ4VfgR2-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="vzJ1bzq0BXNTi24XqwbR-66" target="vzJ1bzq0BXNTi24XqwbR-45">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aOHTguttKLrfWZ4VfgR2-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0;entryDx=0;entryDy=52.5;entryPerimeter=0;" edge="1" parent="1" source="vzJ1bzq0BXNTi24XqwbR-66" target="aOHTguttKLrfWZ4VfgR2-27">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
