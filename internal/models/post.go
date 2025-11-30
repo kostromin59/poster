@@ -1,6 +1,13 @@
 package models
 
-import "time"
+import (
+	"errors"
+	"time"
+)
+
+var (
+	ErrPostNotFound = errors.New("post not found")
+)
 
 type PostID ID[Post]
 
