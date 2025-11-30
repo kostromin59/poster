@@ -59,7 +59,7 @@ func (p *Post) Create(ctx context.Context, dto models.CreatePostDTO) (models.Pos
 		Tags:        dto.Tags,
 	}
 
-	postRow := tx.QueryRow(ctx, `INSERT INTO posts p (title, content, publish_date) VALUES ($1, $2, $3) RETURNING p.id`, dto.Title, dto.Content, dto.PublishDate)
+	postRow := tx.QueryRow(ctx, `INSERT INTO posts (title, content, publish_date) VALUES ($1, $2, $3) RETURNING id`, dto.Title, dto.Content, dto.PublishDate)
 	if err := postRow.Scan(&post.ID); err != nil {
 		return models.Post{}, fmt.Errorf("%s: %w", op, err)
 	}
@@ -91,7 +91,7 @@ func (p *Post) Create(ctx context.Context, dto models.CreatePostDTO) (models.Pos
 				m.filetype,
 				m.uri
 			FROM inserted_media im
-			LEFT JOIN media m ON m.id = im.id`, m, post.ID)
+			LEFT JOIN media m ON m.id = im.media_id`, m, post.ID)
 		if err := mediaRow.Scan(&media.Filetype, &media.URI); err != nil {
 			return models.Post{}, fmt.Errorf("%s: %w", op, err)
 		}

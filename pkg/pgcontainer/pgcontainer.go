@@ -10,6 +10,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
@@ -25,39 +26,33 @@ type PGContainer struct {
 	t   *testing.T
 }
 
-func New(t *testing.T, cfg PGContainerConfig) (*PGContainer, error) {
+func New(t *testing.T, cfg PGContainerConfig) *PGContainer {
 	t.Helper()
 
-	req := testcontainers.ContainerRequest{
-		Image:        "postgres:18-trixie",
-		ExposedPorts: []string{"5432/tcp"},
-		Env: map[string]string{
-			"POSTGRES_DB":       cfg.Database,
-			"POSTGRES_USER":     cfg.User,
-			"POSTGRES_PASSWORD": cfg.Password,
-		},
-		WaitingFor: wait.ForLog("database system is ready to accept connections"),
-	}
+	container, err := postgres.Run(t.Context(), "postgres:18-trixie",
+		postgres.WithDatabase(cfg.Database),
+		postgres.WithUsername(cfg.User),
+		postgres.WithPassword(cfg.Password),
+		testcontainers.WithWaitStrategy(wait.ForAll(
+			wait.ForLog("database system is ready to accept connections"),
+			wait.ForListeningPort("5432/tcp"),
+		)),
+	)
 
-	cont, err := testcontainers.GenericContainer(t.Context(), testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
-		Reuse:            false,
-	})
 	if err != nil {
 		t.Fatalf("unable to create generic container: %q", err)
 	}
 	t.Cleanup(func() {
-		_ = cont.Terminate(t.Context())
+		_ = container.Terminate(t.Context())
 	})
 
 	pgc := &PGContainer{
 		cfg:       cfg,
-		Container: cont,
+		Container: container,
 		t:         t,
 	}
 
-	return pgc, nil
+	return pgc
 }
 
 func (pgc *PGContainer) DSN() string {
