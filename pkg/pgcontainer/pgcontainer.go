@@ -38,7 +38,6 @@ func New(t *testing.T, cfg PGContainerConfig) *PGContainer {
 			wait.ForListeningPort("5432/tcp"),
 		)),
 	)
-
 	if err != nil {
 		t.Fatalf("unable to create generic container: %q", err)
 	}
