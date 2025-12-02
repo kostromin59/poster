@@ -12,6 +12,10 @@ import (
 )
 
 func TestTagFindAll(t *testing.T) {
+	if testing.Short() {
+		t.Skip("this test is integration")
+	}
+
 	pgc := pgcontainer.New(t, pgcontainer.PGContainerConfig{
 		Database: "poster",
 		User:     "poster",
