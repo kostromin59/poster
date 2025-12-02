@@ -43,8 +43,9 @@ func (t *Tag) FindAll(ctx context.Context) ([]models.Tag, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
+	defer rows.Close()
 
-	tags, err := pgx.CollectRows(rows, pgx.RowTo[models.Tag])
+	dbTags, err := pgx.CollectRows(rows, pgx.RowTo[string])
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -53,8 +54,13 @@ func (t *Tag) FindAll(ctx context.Context) ([]models.Tag, error) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	if len(tags) == 0 {
+	if len(dbTags) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, models.ErrTagNotFound)
+	}
+
+	tags := make([]models.Tag, len(dbTags))
+	for i, dbt := range dbTags {
+		tags[i] = models.Tag(dbt)
 	}
 
 	return tags, nil

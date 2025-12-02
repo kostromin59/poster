@@ -21,6 +21,13 @@ type Post struct {
 	Media       []Media
 }
 
+type PostSearchFilters struct {
+	Title         *string
+	Tags          []string
+	Sources       []string
+	PublishedFrom *time.Time
+}
+
 type CreatePostDTO struct {
 	Title       string
 	Content     string
