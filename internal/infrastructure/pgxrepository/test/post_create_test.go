@@ -53,7 +53,7 @@ func TestPostCreate(t *testing.T) {
 			Content:     "my content",
 			PublishDate: time.Now().Add(30 * time.Minute),
 			Tags:        []models.Tag{"tag1", "tag2"},
-			Sources:     []models.Source{"web", "tg"},
+			Sources:     []models.Source{models.SourceTG, models.SourceWebsite},
 			Media:       mediaIDs,
 		}
 
@@ -95,7 +95,7 @@ func TestPostCreate(t *testing.T) {
 			Content:     "my content 2",
 			PublishDate: time.Now().Add(30 * time.Minute),
 			Tags:        []models.Tag{"tag1", "tag2"},
-			Sources:     []models.Source{"web", "tg"},
+			Sources:     []models.Source{models.SourceWebsite, models.SourceTG},
 			Media:       nil,
 		}
 
@@ -158,7 +158,7 @@ func TestPostCreate(t *testing.T) {
 			Content:     "my content 3",
 			PublishDate: time.Now().Add(30 * time.Minute),
 			Tags:        []models.Tag{"tag1", "tag2"},
-			Sources:     []models.Source{"web", "tg"},
+			Sources:     []models.Source{models.SourceWebsite, models.SourceTG},
 			Media:       mediaIDs,
 		}
 

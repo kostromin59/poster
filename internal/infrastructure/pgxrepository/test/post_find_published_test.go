@@ -51,13 +51,8 @@ func TestPostFindPublished(t *testing.T) {
 		}
 	}
 
-	sources := []models.Source{"web", "tg"}
+	sources := []models.Source{models.SourceWebsite, models.SourceTG}
 	slices.Sort(sources)
-	for _, s := range sources {
-		if _, err := pool.Exec(t.Context(), `INSERT INTO sources (source) VALUES ($1)`, s); err != nil {
-			t.Fatalf("unable to insert source: %q", err)
-		}
-	}
 
 	posts := []models.Post{
 		{
