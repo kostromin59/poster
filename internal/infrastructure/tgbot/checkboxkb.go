@@ -12,7 +12,7 @@ func NewCheckboxKeyboard(bot *telebot.Bot, prefix string, items []CheckboxKeyboa
 	kb := bot.NewMarkup()
 
 	buttons := make([]telebot.Row, 0, len(items))
-	for i, item := range items {
+	for _, item := range items {
 		text := item.Label
 		if item.IsSelected {
 			text = "✅ " + text
@@ -21,7 +21,13 @@ func NewCheckboxKeyboard(bot *telebot.Bot, prefix string, items []CheckboxKeyboa
 		btn := kb.Data(text, prefix, item.Value)
 
 		bot.Handle(&btn, func(c telebot.Context) error {
-			items[i].IsSelected = !items[i].IsSelected
+			data := c.Data()
+			for i, item := range items {
+				if item.Value == data {
+					items[i].IsSelected = !item.IsSelected
+					break
+				}
+			}
 
 			return edit(c, items)
 		})

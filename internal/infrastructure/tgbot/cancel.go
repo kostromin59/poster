@@ -13,7 +13,9 @@ func CancelMiddleware(step Step) telebot.MiddlewareFunc {
 
 			step.Delete(c.Sender().ID)
 
-			return c.Send("Действие отменено!")
+			kb := &telebot.ReplyMarkup{RemoveKeyboard: true}
+
+			return c.Send("Действие отменено!", kb)
 		}
 	}
 }

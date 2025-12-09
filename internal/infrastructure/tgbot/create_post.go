@@ -53,7 +53,7 @@ func (cp *CreatePost) Handler() telebot.HandlerFunc {
 	return func(c telebot.Context) error {
 		cp.step.Set(c.Sender().ID, StepAwaitingTitle)
 
-		return c.Send("Введите заголовок:", CancelKeyboard)
+		return c.Send("Введите заголовок:", CancelKeyboard())
 	}
 }
 
@@ -90,8 +90,6 @@ func (cp *CreatePost) TextAwaitingContentHandler() telebot.HandlerFunc {
 
 		cp.state.Set(c.Sender().ID, dto)
 
-		cp.step.Set(c.Sender().ID, StepAwaitingTags)
-
 		tags, err := cp.tagRepo.FindAll(ctx)
 		if err != nil {
 			return err
@@ -120,6 +118,8 @@ func (cp *CreatePost) TextAwaitingContentHandler() telebot.HandlerFunc {
 			return c.Edit("Введите теги:", CancelKeyboard(), NewCheckboxKeyboard(cp.bot, "tags", radioItems, edit))
 		}
 
+		cp.step.Set(c.Sender().ID, StepAwaitingTags)
+
 		return c.Send("Введите теги:", CancelKeyboard(), NewCheckboxKeyboard(cp.bot, "tags", radioItems, edit))
 	}
 }
@@ -146,7 +146,7 @@ func (cp *CreatePost) updateStateTags(userID int64, tags []string) {
 
 func (cp *CreatePost) TextAwaitingTagsHandler() telebot.HandlerFunc {
 	return func(c telebot.Context) error {
-		if cp.step.Get(c.Sender().ID) != StepAwaitingTitle {
+		if cp.step.Get(c.Sender().ID) != StepAwaitingTags {
 			return nil
 		}
 
@@ -157,8 +157,8 @@ func (cp *CreatePost) TextAwaitingTagsHandler() telebot.HandlerFunc {
 
 		cp.state.Set(c.Sender().ID, dto)
 
-		cp.step.Set(c.Sender().ID, StepAwaitingContent)
+		// cp.step.Set(c.Sender().ID, StepAwaitingTags)
 
-		return c.Send("Введите содержание:", CancelKeyboard())
+		return c.Send("Введите источники:", CancelKeyboard())
 	}
 }
