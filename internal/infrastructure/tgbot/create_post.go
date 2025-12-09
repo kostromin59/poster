@@ -88,7 +88,7 @@ func (cp *CreatePost) TextAwaitingTitleHandler() telebot.HandlerFunc {
 func (cp *CreatePost) TextAwaitingContentHandler() telebot.HandlerFunc {
 	const actionToggleTag = "actionToggleTag"
 
-	const message = "Выберите уже существющие теги и при необходимости введите новые:"
+	const message = "Добавьте уже существующие теги:"
 
 	cp.bot.Handle("\f"+actionToggleTag, func(c telebot.Context) error {
 		if cp.step.Get(c.Sender().ID) != StepAwaitingTags {
@@ -112,9 +112,9 @@ func (cp *CreatePost) TextAwaitingContentHandler() telebot.HandlerFunc {
 
 		kb := cp.bot.NewMarkup()
 		checkboxButtons := CheckboxButtons(kb, actionToggleTag, dto.CheckboxTags)
-		kb.Reply(checkboxButtons...)
+		kb.Inline(checkboxButtons...)
 
-		return c.Edit(message, CancelKeyboardWithButtons(NextStepButton), kb)
+		return c.Edit(message, kb)
 	})
 
 	return func(c telebot.Context) error {
@@ -147,11 +147,15 @@ func (cp *CreatePost) TextAwaitingContentHandler() telebot.HandlerFunc {
 
 		kb := cp.bot.NewMarkup()
 		checkboxButtons := CheckboxButtons(kb, actionToggleTag, checkboxItems)
-		kb.Reply(checkboxButtons...)
+		kb.Inline(checkboxButtons...)
 
 		cp.step.Set(c.Sender().ID, StepAwaitingTags)
 
-		return c.Send(message, CancelKeyboardWithButtons(NextStepButton), kb)
+		if err := c.Send("Напишите теги, если не хватает в списке.", CancelKeyboardWithButtons(NextStepButton)); err != nil {
+			return err
+		}
+
+		return c.Send(message, kb)
 	}
 }
 
@@ -175,19 +179,22 @@ func (cp *CreatePost) TextAwaitingTagsHandler() telebot.HandlerFunc {
 
 		ctx := c.Get(ContextKey).(context.Context)
 
-		tagsRaw := strings.Split(c.Message().Text, ",")
-		tags := make([]string, 0, len(tagsRaw))
-		for _, tag := range tagsRaw {
-			tag = strings.TrimSpace(tag)
-			if tag == "" {
-				continue
+		dto := cp.state.Get(c.Sender().ID)
+
+		if c.Message().Text != NextStepButton {
+			tagsRaw := strings.Split(c.Message().Text, ",")
+			tags := make([]string, 0, len(tagsRaw))
+			for _, tag := range tagsRaw {
+				tag = strings.TrimSpace(tag)
+				if tag == "" {
+					continue
+				}
+
+				tags = append(tags, tag)
 			}
 
-			tags = append(tags, tag)
+			dto.Tags = tags
 		}
-
-		dto := cp.state.Get(c.Sender().ID)
-		dto.Tags = tags
 
 		sources, err := cp.sourceRepo.FindAll(ctx)
 		if err != nil && !errors.Is(err, models.ErrSourceNotFound) {

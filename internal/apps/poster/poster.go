@@ -92,6 +92,7 @@ func Run(cfg *configs.Poster) error {
 	telegramBot.Handle("/create_post", createPostTGHandlers.Handler())
 
 	textHandlers := []telebot.HandlerFunc{
+		createPostTGHandlers.TextAwaitingTagsHandler(),
 		createPostTGHandlers.TextAwaitingContentHandler(),
 		createPostTGHandlers.TextAwaitingTitleHandler(),
 	}
