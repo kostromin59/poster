@@ -34,7 +34,7 @@ func Run(cfg *configs.Poster) error {
 
 	postRepo := pgxrepository.NewPost(pool)
 	tagRepo := pgxrepository.NewTag(pool)
-	_ = tagRepo
+	sourceRepo := pgxrepository.NewSource(pool)
 
 	// Kafka
 	consumer, err := kafka.NewConsumer(cfg.KafkaHosts)
@@ -86,7 +86,7 @@ func Run(cfg *configs.Poster) error {
 
 	stepTG := tgbot.NewLocalState[string]()
 	createPostState := tgbot.NewLocalState[tgbot.CreatePostState]()
-	createPostTGHandlers := tgbot.NewCreatePost(telegramBot, stepTG, createPostState, postRepo, tagRepo, nil)
+	createPostTGHandlers := tgbot.NewCreatePost(telegramBot, stepTG, createPostState, postRepo, tagRepo, sourceRepo)
 
 	telegramBot.Use(tgbot.ContextMiddleware(), tgbot.CancelMiddleware(stepTG))
 	telegramBot.Handle("/create_post", createPostTGHandlers.Handler())

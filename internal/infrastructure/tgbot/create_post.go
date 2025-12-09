@@ -169,7 +169,26 @@ func (cp *CreatePost) TextAwaitingTagsHandler() telebot.HandlerFunc {
 			return nil
 		}
 
-		return nil
+		_ = c.Respond()
+
+		value := c.Data()
+
+		dto := cp.state.Get(c.Sender().ID)
+		for i, cs := range dto.CheckboxSources {
+			if cs.Value != value {
+				continue
+			}
+
+			dto.CheckboxSources[i].IsSelected = !cs.IsSelected
+		}
+
+		cp.state.Set(c.Sender().ID, dto)
+
+		kb := cp.bot.NewMarkup()
+		checkboxButtons := CheckboxButtons(kb, actionToggleSource, dto.CheckboxSources)
+		kb.Inline(checkboxButtons...)
+
+		return c.Edit(message, kb)
 	})
 
 	return func(c telebot.Context) error {
@@ -213,10 +232,16 @@ func (cp *CreatePost) TextAwaitingTagsHandler() telebot.HandlerFunc {
 
 		kb := cp.bot.NewMarkup()
 		checkboxButtons := CheckboxButtons(kb, actionToggleSource, checkboxItems)
-		kb.Reply(checkboxButtons...)
+		kb.Inline(checkboxButtons...)
 
 		cp.state.Set(c.Sender().ID, dto)
 
-		return c.Send(message, CancelKeyboardWithButtons(NextStepButton), kb)
+		cp.step.Set(c.Sender().ID, StepAwaitingSources)
+
+		if err := c.Send("Источники можно выбрать только из кнопок. После выбора нажмите кнопку «Продолжить»", CancelKeyboardWithButtons(NextStepButton)); err != nil {
+			return err
+		}
+
+		return c.Send(message, kb)
 	}
 }
