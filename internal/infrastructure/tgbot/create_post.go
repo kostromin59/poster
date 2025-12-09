@@ -2,6 +2,7 @@ package tgbot
 
 import (
 	"context"
+	"errors"
 	"maps"
 	"slices"
 	"strings"
@@ -91,7 +92,7 @@ func (cp *CreatePost) TextAwaitingContentHandler() telebot.HandlerFunc {
 		cp.state.Set(c.Sender().ID, dto)
 
 		tags, err := cp.tagRepo.FindAll(ctx)
-		if err != nil {
+		if err != nil && !errors.Is(err, models.ErrTagNotFound) {
 			return err
 		}
 
