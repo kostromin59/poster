@@ -44,12 +44,6 @@ func Run(cfg configs.Poster) error {
 		return err
 	}
 
-	kafkaListener := listeners.NewKafka(consumer, cfg.PublishedPostTopic)
-	kafkaListenerCh, err := kafkaListener.Start(appCtx)
-	if err != nil {
-		return err
-	}
-
 	// Handlers
 	publishedPostTGHandler := handlers.NewPublishedPostTG(nil) // TODO:
 
@@ -64,24 +58,15 @@ func Run(cfg configs.Poster) error {
 	}
 	c.Start()
 
-	// Event listener
-	go func() {
-		handlers := []events.Handler{publishedPostTGHandler}
-		for {
-			select {
-			case <-appCtx.Done():
-				return
-			case e, ok := <-kafkaListenerCh:
-				if !ok {
-					return
-				}
+	// Event listeners
+	kafkaPublishedPostListener := listeners.NewKafka(consumer, cfg.PublishedPostTopic)
+	publisedPostCh, err := kafkaPublishedPostListener.Start(appCtx)
+	if err != nil {
+		return err
+	}
 
-				for _, h := range handlers {
-					h.Handle(appCtx, e)
-				}
-			}
-		}
-	}()
+	publishedPostListener := events.NewListener(publisedPostCh, publishedPostTGHandler)
+	publishedPostListener.Start(appCtx)
 
 	return nil
 }
