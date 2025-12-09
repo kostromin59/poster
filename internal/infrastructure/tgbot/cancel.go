@@ -28,3 +28,17 @@ func CancelKeyboard() *telebot.ReplyMarkup {
 
 	return kb
 }
+
+func CancelKeyboardWithButtons(buttons ...string) *telebot.ReplyMarkup {
+	kb := &telebot.ReplyMarkup{ResizeKeyboard: true}
+
+	rows := make([]telebot.Row, 0, len(buttons)+1)
+	for _, b := range buttons {
+		rows = append(rows, kb.Row(kb.Text(b)))
+	}
+	rows = append(rows, kb.Row(kb.Text(CancelText)))
+
+	kb.Reply(rows...)
+
+	return kb
+}

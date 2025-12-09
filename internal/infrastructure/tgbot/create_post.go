@@ -3,8 +3,6 @@ package tgbot
 import (
 	"context"
 	"errors"
-	"maps"
-	"slices"
 	"strings"
 
 	"github.com/kostromin59/poster/internal/models"
@@ -23,10 +21,20 @@ type CreatePostSourceRepository interface {
 	FindAll(ctx context.Context) ([]models.Source, error)
 }
 
+type CreatePostState struct {
+	Title           string
+	Content         string
+	CheckboxTags    []CheckboxKeyboardItem
+	Tags            []string
+	CheckboxSources []CheckboxKeyboardItem
+	Sources         []string
+	Media           []string
+}
+
 type CreatePost struct {
 	bot        *telebot.Bot
 	step       Step
-	state      State[models.CreatePostDTO]
+	state      State[CreatePostState]
 	repo       CreatePostRepository
 	tagRepo    CreatePostTagRepository
 	sourceRepo CreatePostSourceRepository
@@ -35,7 +43,7 @@ type CreatePost struct {
 func NewCreatePost(
 	bot *telebot.Bot,
 	step Step,
-	state State[models.CreatePostDTO],
+	state State[CreatePostState],
 	repo CreatePostRepository,
 	tagRepo CreatePostTagRepository,
 	sourceRepo CreatePostSourceRepository,
@@ -65,7 +73,7 @@ func (cp *CreatePost) TextAwaitingTitleHandler() telebot.HandlerFunc {
 		}
 
 		title := strings.TrimSpace(c.Message().Text)
-		dto := models.CreatePostDTO{
+		dto := CreatePostState{
 			Title: title,
 		}
 
@@ -78,6 +86,37 @@ func (cp *CreatePost) TextAwaitingTitleHandler() telebot.HandlerFunc {
 }
 
 func (cp *CreatePost) TextAwaitingContentHandler() telebot.HandlerFunc {
+	const actionToggleTag = "actionToggleTag"
+
+	const message = "Выберите уже существющие теги и при необходимости введите новые:"
+
+	cp.bot.Handle("\f"+actionToggleTag, func(c telebot.Context) error {
+		if cp.step.Get(c.Sender().ID) != StepAwaitingTags {
+			return nil
+		}
+
+		_ = c.Respond()
+
+		value := c.Data()
+
+		dto := cp.state.Get(c.Sender().ID)
+		for i, ct := range dto.CheckboxTags {
+			if ct.Value != value {
+				continue
+			}
+
+			dto.CheckboxTags[i].IsSelected = !ct.IsSelected
+		}
+
+		cp.state.Set(c.Sender().ID, dto)
+
+		kb := cp.bot.NewMarkup()
+		checkboxButtons := CheckboxButtons(kb, actionToggleTag, dto.CheckboxTags)
+		kb.Reply(checkboxButtons...)
+
+		return c.Edit(message, CancelKeyboardWithButtons(NextStepButton), kb)
+	})
+
 	return func(c telebot.Context) error {
 		if cp.step.Get(c.Sender().ID) != StepAwaitingContent {
 			return nil
@@ -89,77 +128,88 @@ func (cp *CreatePost) TextAwaitingContentHandler() telebot.HandlerFunc {
 		dto := cp.state.Get(c.Sender().ID)
 		dto.Content = content
 
-		cp.state.Set(c.Sender().ID, dto)
-
 		tags, err := cp.tagRepo.FindAll(ctx)
 		if err != nil && !errors.Is(err, models.ErrTagNotFound) {
 			return err
 		}
 
-		radioItems := make([]CheckboxKeyboardItem, len(tags))
+		checkboxItems := make([]CheckboxKeyboardItem, len(tags))
 		for i, tag := range tags {
-			radioItems[i] = CheckboxKeyboardItem{
+			checkboxItems[i] = CheckboxKeyboardItem{
 				Value:      string(tag),
 				Label:      string(tag),
 				IsSelected: false,
 			}
 		}
+		dto.CheckboxTags = checkboxItems
 
-		var edit func(c telebot.Context, items []CheckboxKeyboardItem) error
-		edit = func(c telebot.Context, items []CheckboxKeyboardItem) error {
-			tags := make([]string, 0, len(items))
-			for _, item := range items {
-				if item.IsSelected {
-					tags = append(tags, item.Value)
-				}
-			}
+		cp.state.Set(c.Sender().ID, dto)
 
-			cp.updateStateTags(c.Sender().ID, tags)
-
-			return c.Edit("Введите теги:", CancelKeyboard(), NewCheckboxKeyboard(cp.bot, "tags", radioItems, edit))
-		}
+		kb := cp.bot.NewMarkup()
+		checkboxButtons := CheckboxButtons(kb, actionToggleTag, checkboxItems)
+		kb.Reply(checkboxButtons...)
 
 		cp.step.Set(c.Sender().ID, StepAwaitingTags)
 
-		return c.Send("Введите теги:", CancelKeyboard(), NewCheckboxKeyboard(cp.bot, "tags", radioItems, edit))
+		return c.Send(message, CancelKeyboardWithButtons(NextStepButton), kb)
 	}
-}
-
-func (cp *CreatePost) updateStateTags(userID int64, tags []string) {
-	dto := cp.state.Get(userID)
-
-	uniqueTags := make(map[models.Tag]struct{}, len(dto.Tags)+len(tags))
-
-	for _, tag := range tags {
-		tag = strings.TrimSpace(tag)
-		uniqueTags[models.Tag(tag)] = struct{}{}
-	}
-
-	for _, tag := range dto.Tags {
-		uniqueTags[tag] = struct{}{}
-	}
-
-	allTags := slices.Collect(maps.Keys(uniqueTags))
-	dto.Tags = allTags
-
-	cp.state.Set(userID, dto)
 }
 
 func (cp *CreatePost) TextAwaitingTagsHandler() telebot.HandlerFunc {
+	const actionToggleSource = "actionToggleSource"
+
+	const message = "Выберите источники:"
+
+	cp.bot.Handle("\f"+actionToggleSource, func(c telebot.Context) error {
+		if cp.step.Get(c.Sender().ID) != StepAwaitingSources {
+			return nil
+		}
+
+		return nil
+	})
+
 	return func(c telebot.Context) error {
 		if cp.step.Get(c.Sender().ID) != StepAwaitingTags {
 			return nil
 		}
 
-		title := strings.TrimSpace(c.Message().Text)
-		dto := models.CreatePostDTO{
-			Title: title,
+		ctx := c.Get(ContextKey).(context.Context)
+
+		tagsRaw := strings.Split(c.Message().Text, ",")
+		tags := make([]string, 0, len(tagsRaw))
+		for _, tag := range tagsRaw {
+			tag = strings.TrimSpace(tag)
+			if tag == "" {
+				continue
+			}
+
+			tags = append(tags, tag)
 		}
+
+		dto := cp.state.Get(c.Sender().ID)
+		dto.Tags = tags
+
+		sources, err := cp.sourceRepo.FindAll(ctx)
+		if err != nil && !errors.Is(err, models.ErrSourceNotFound) {
+			return err
+		}
+
+		checkboxItems := make([]CheckboxKeyboardItem, len(sources))
+		for i, s := range sources {
+			checkboxItems[i] = CheckboxKeyboardItem{
+				Value:      string(s),
+				Label:      string(s),
+				IsSelected: false,
+			}
+		}
+		dto.CheckboxSources = checkboxItems
+
+		kb := cp.bot.NewMarkup()
+		checkboxButtons := CheckboxButtons(kb, actionToggleSource, checkboxItems)
+		kb.Reply(checkboxButtons...)
 
 		cp.state.Set(c.Sender().ID, dto)
 
-		// cp.step.Set(c.Sender().ID, StepAwaitingTags)
-
-		return c.Send("Введите источники:", CancelKeyboard())
+		return c.Send(message, CancelKeyboardWithButtons(NextStepButton), kb)
 	}
 }

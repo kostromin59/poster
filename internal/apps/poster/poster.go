@@ -14,7 +14,6 @@ import (
 	"github.com/kostromin59/poster/internal/infrastructure/listeners"
 	"github.com/kostromin59/poster/internal/infrastructure/pgxrepository"
 	"github.com/kostromin59/poster/internal/infrastructure/tgbot"
-	"github.com/kostromin59/poster/internal/models"
 	"github.com/kostromin59/poster/pkg/kafka"
 	"github.com/robfig/cron/v3"
 	"gopkg.in/telebot.v4"
@@ -86,7 +85,7 @@ func Run(cfg *configs.Poster) error {
 	}
 
 	stepTG := tgbot.NewLocalState[string]()
-	createPostState := tgbot.NewLocalState[models.CreatePostDTO]()
+	createPostState := tgbot.NewLocalState[tgbot.CreatePostState]()
 	createPostTGHandlers := tgbot.NewCreatePost(telegramBot, stepTG, createPostState, postRepo, tagRepo, nil)
 
 	telegramBot.Use(tgbot.ContextMiddleware(), tgbot.CancelMiddleware(stepTG))

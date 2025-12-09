@@ -4,7 +4,10 @@ const (
 	StepAwaitingTitle   = "awaitingTitle"
 	StepAwaitingContent = "awaitingContent"
 	StepAwaitingTags    = "awaitingTags"
+	StepAwaitingSources = "awaitingSources"
 )
+
+const NextStepButton = "Продолжить"
 
 type Step interface {
 	Get(userID int64) string
