@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/kostromin59/poster/internal/models"
 	"gopkg.in/telebot.v4"
@@ -29,6 +30,7 @@ type CreatePostState struct {
 	CheckboxSources []CheckboxKeyboardItem
 	Sources         []string
 	Media           []string
+	PublishDate     time.Time
 }
 
 type CreatePost struct {
@@ -38,6 +40,7 @@ type CreatePost struct {
 	repo       CreatePostRepository
 	tagRepo    CreatePostTagRepository
 	sourceRepo CreatePostSourceRepository
+	loc        *time.Location
 }
 
 func NewCreatePost(
@@ -47,6 +50,7 @@ func NewCreatePost(
 	repo CreatePostRepository,
 	tagRepo CreatePostTagRepository,
 	sourceRepo CreatePostSourceRepository,
+	loc *time.Location,
 ) *CreatePost {
 	return &CreatePost{
 		bot:        bot,
@@ -55,6 +59,7 @@ func NewCreatePost(
 		repo:       repo,
 		tagRepo:    tagRepo,
 		sourceRepo: sourceRepo,
+		loc:        loc,
 	}
 }
 
@@ -243,5 +248,114 @@ func (cp *CreatePost) TextAwaitingTagsHandler() telebot.HandlerFunc {
 		}
 
 		return c.Send(message, kb)
+	}
+}
+
+func (cp *CreatePost) TextSubmitSourcesHandler() telebot.HandlerFunc {
+	return func(c telebot.Context) error {
+		if cp.step.Get(c.Sender().ID) != StepAwaitingSources {
+			return nil
+		}
+
+		if c.Message().Text != NextStepButton {
+			return nil
+		}
+
+		cp.step.Set(c.Sender().ID, StepAwaitingPublishDate)
+
+		if err := c.Send("Введите дату публикации в формате 2006-01-02 15:04", CancelKeyboard()); err != nil {
+			return err
+		}
+
+		return nil
+	}
+}
+
+func (cp *CreatePost) TextAwaitingPublishDateHandler() telebot.HandlerFunc {
+	return func(c telebot.Context) error {
+		if cp.step.Get(c.Sender().ID) != StepAwaitingPublishDate {
+			return nil
+		}
+
+		ctx := c.Get(ContextKey).(context.Context)
+
+		publishDate, err := time.ParseInLocation("2006-01-02 15:04", c.Message().Text, cp.loc)
+		if err != nil {
+			if err := c.Reply("Не удалось разобрать дату публикации!"); err != nil {
+				return err
+			}
+
+			return nil
+		}
+
+		dto := cp.state.Get(c.Sender().ID)
+		dto.PublishDate = publishDate
+
+		// TODO: media
+		// cp.state.Set(c.Sender().ID, dto)
+
+		tags := make([]models.Tag, 0, len(dto.Tags)+len(dto.CheckboxTags))
+		for _, tag := range dto.Tags {
+			if tag == "" {
+				continue
+			}
+
+			tags = append(tags, models.Tag(tag))
+		}
+
+		for _, tag := range dto.CheckboxTags {
+			if !tag.IsSelected {
+				continue
+			}
+
+			if tag.Value == "" {
+				continue
+			}
+
+			tags = append(tags, models.Tag(tag.Value))
+		}
+
+		sources := make([]models.Source, 0, len(dto.Sources)+len(dto.CheckboxSources))
+		for i, s := range dto.Sources {
+			if s == "" {
+				continue
+			}
+
+			sources[i] = models.Source(s)
+		}
+
+		for _, s := range dto.CheckboxSources {
+			if !s.IsSelected {
+				continue
+			}
+
+			if s.Value == "" {
+				continue
+			}
+
+			sources = append(sources, models.Source(s.Value))
+		}
+
+		if _, err := cp.repo.Create(ctx, models.CreatePostDTO{
+			Title:       dto.Title,
+			Content:     dto.Content,
+			PublishDate: dto.PublishDate,
+			Tags:        tags,
+			Sources:     sources,
+			Media:       nil,
+		}); err != nil {
+			return err
+		}
+
+		kb := &telebot.ReplyMarkup{RemoveKeyboard: true}
+
+		cp.step.Delete(c.Sender().ID)
+		cp.state.Delete(c.Sender().ID)
+
+		if err := c.Send("Пост создан!", kb); err != nil {
+			return err
+		}
+
+		return nil
 	}
 }

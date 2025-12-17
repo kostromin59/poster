@@ -84,14 +84,21 @@ func Run(cfg *configs.Poster) error {
 		return err
 	}
 
+	loc, err := time.LoadLocation(cfg.Location)
+	if err != nil {
+		return err
+	}
+
 	stepTG := tgbot.NewLocalState[string]()
 	createPostState := tgbot.NewLocalState[tgbot.CreatePostState]()
-	createPostTGHandlers := tgbot.NewCreatePost(telegramBot, stepTG, createPostState, postRepo, tagRepo, sourceRepo)
+	createPostTGHandlers := tgbot.NewCreatePost(telegramBot, stepTG, createPostState, postRepo, tagRepo, sourceRepo, loc)
 
 	telegramBot.Use(tgbot.ContextMiddleware(), tgbot.CancelMiddleware(stepTG))
 	telegramBot.Handle("/create_post", createPostTGHandlers.Handler())
 
 	textHandlers := []telebot.HandlerFunc{
+		createPostTGHandlers.TextAwaitingPublishDateHandler(),
+		createPostTGHandlers.TextSubmitSourcesHandler(),
 		createPostTGHandlers.TextAwaitingTagsHandler(),
 		createPostTGHandlers.TextAwaitingContentHandler(),
 		createPostTGHandlers.TextAwaitingTitleHandler(),
