@@ -85,7 +85,7 @@ func Run(cfg *configs.Poster) error {
 	createPostState := tgbot.NewLocalState[tgbot.CreatePostState]()
 	createPostTGHandlers := tgbot.NewCreatePost(telegramBot, stepTG, createPostState, postRepo, tagRepo, sourceRepo, loc)
 
-	telegramBot.Use(tgbot.ContextMiddleware(), tgbot.CancelMiddleware(stepTG))
+	telegramBot.Use(tgbot.AllowedUsersMiddleware(cfg.TGAllowedUsers), tgbot.ContextMiddleware(), tgbot.CancelMiddleware(stepTG))
 	telegramBot.Handle("/create_post", createPostTGHandlers.Handler())
 
 	textHandlers := []telebot.HandlerFunc{
