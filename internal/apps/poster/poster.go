@@ -3,6 +3,7 @@ package poster
 import (
 	"context"
 	"log/slog"
+	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -20,6 +21,10 @@ import (
 )
 
 func Run(cfg *configs.Poster) error {
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})))
+
 	appCtx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -47,9 +52,6 @@ func Run(cfg *configs.Poster) error {
 		return err
 	}
 
-	// Handlers
-	publishedPostTGHandler := handlers.NewPublishedPostTG(nil) // TODO:
-
 	// Dispatchers
 	publishedPostDispatcher := dispatchers.NewAsyncKakfa(asyncProducer, cfg.PublishedPostTopic)
 
@@ -60,16 +62,6 @@ func Run(cfg *configs.Poster) error {
 		return err
 	}
 	c.Start()
-
-	// Event listeners
-	kafkaPublishedPostListener := listeners.NewKafka(consumer, cfg.PublishedPostTopic)
-	publisedPostCh, err := kafkaPublishedPostListener.Start(appCtx)
-	if err != nil {
-		return err
-	}
-
-	publishedPostListener := events.NewListener(publisedPostCh, publishedPostTGHandler)
-	publishedPostListener.Start(appCtx)
 
 	// Telegram bot
 	telegramBot, err := telebot.NewBot(telebot.Settings{
@@ -113,6 +105,21 @@ func Run(cfg *configs.Poster) error {
 
 		return nil
 	})
+
+	tgPublisher := tgbot.NewPublisher(telegramBot, cfg.TGPublishChatID, "my footer")
+
+	// Handlers
+	publishedPostTGHandler := handlers.NewPublishedPostTG(tgPublisher)
+
+	// Event listeners
+	kafkaPublishedPostListener := listeners.NewKafka(consumer, cfg.PublishedPostTopic)
+	publisedPostCh, err := kafkaPublishedPostListener.Start(appCtx)
+	if err != nil {
+		return err
+	}
+
+	publishedPostListener := events.NewListener(publisedPostCh, publishedPostTGHandler)
+	publishedPostListener.Start(appCtx)
 
 	slog.Info("app has been started")
 	telegramBot.Start()

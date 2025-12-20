@@ -31,6 +31,7 @@ func (ppt *PublishedPostTG) Handle(ctx context.Context, e []byte) {
 
 	var publishedPostEvent events.PublishedPost
 	if err := json.Unmarshal(e, &publishedPostEvent); err != nil {
+		log.Error("unable to unmarshal published post event", slog.String("err", err.Error()))
 		return
 	}
 

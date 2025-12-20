@@ -47,6 +47,11 @@ func PublishedPost(ctx context.Context, cron *cron.Cron, d events.AsyncDispatche
 					tags[i] = string(t)
 				}
 
+				sources := make([]string, len(p.Sources))
+				for i, s := range p.Sources {
+					sources[i] = string(s)
+				}
+
 				media := make([]events.PublishedPostMedia, len(p.Media))
 				for i, m := range p.Media {
 					media[i] = events.PublishedPostMedia{
@@ -66,6 +71,7 @@ func PublishedPost(ctx context.Context, cron *cron.Cron, d events.AsyncDispatche
 						PublishDate: p.PublishDate,
 						Tags:        tags,
 						Media:       media,
+						Sources:     sources,
 					},
 				})
 			}
