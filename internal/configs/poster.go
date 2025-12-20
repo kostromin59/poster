@@ -8,4 +8,5 @@ type Poster struct {
 	TGPublishChatID    int64    `envconfig:"TG_PUBLUSH_CHAT_ID" required:"true"`
 	TGAllowedUsers     []int64  `envconfig:"TG_ALLOWED_USERS" required:"true"`
 	Database           Postgres
+	Redis              Redis
 }

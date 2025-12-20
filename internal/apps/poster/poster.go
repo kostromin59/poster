@@ -15,7 +15,9 @@ import (
 	"github.com/kostromin59/poster/internal/infrastructure/listeners"
 	"github.com/kostromin59/poster/internal/infrastructure/pgxrepository"
 	"github.com/kostromin59/poster/internal/infrastructure/tgbot"
+	"github.com/kostromin59/poster/pkg/cache"
 	"github.com/kostromin59/poster/pkg/kafka"
+	"github.com/redis/go-redis/v9"
 	"github.com/robfig/cron/v3"
 	"gopkg.in/telebot.v4"
 )
@@ -30,6 +32,24 @@ func Run(cfg *configs.Poster) error {
 
 	setupCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
+
+	// Redis
+	// Redis
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     cfg.Redis.Conn,
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
+	})
+
+	if status := redisClient.Ping(setupCtx); status.Err() != nil {
+		return status.Err()
+	}
+
+	// Redis Cache
+	cache, err := cache.NewRedis(redisClient)
+	if err != nil {
+		return err
+	}
 
 	// Repositories
 	pool, err := pgxpool.New(setupCtx, cfg.Database.DSN())
@@ -106,7 +126,7 @@ func Run(cfg *configs.Poster) error {
 		return nil
 	})
 
-	tgPublisher := tgbot.NewPublisher(telegramBot, cfg.TGPublishChatID, "my footer")
+	tgPublisher := tgbot.NewPublisher(telegramBot, cfg.TGPublishChatID, "my footer", cache)
 
 	// Handlers
 	publishedPostTGHandler := handlers.NewPublishedPostTG(tgPublisher)

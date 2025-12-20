@@ -64,9 +64,23 @@ services:
       - postgres_data:/var/lib/postgresql/18/docker
     restart: unless-stopped
 
+  redis:
+    image: redis:8-bookworm
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --appendfsync everysec
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    networks:
+      - poster
+    restart: unless-stopped
+
 networks:
   kafka:
   poster:
 
 volumes:
   postgres_data:
+  redis_data:
